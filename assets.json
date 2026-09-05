@@ -3,11 +3,11 @@
   "tileSize": { "width": 32, "height": 32, "note": "source tile size from the asset sheet; scale in-engine as needed" },
 
   "player": {
-    "idle":  { "type": "frames", "frames": ["assets/player/idle_0.png", "assets/player/idle_1.png"], "fps": 2, "loop": true, "emoji": "🧑‍🚀" },
-    "up":    { "type": "frames", "frames": ["assets/player/up_0.png", "assets/player/up_1.png", "assets/player/up_2.png"], "fps": 6, "loop": true, "emoji": "🧑‍🚀" },
+    "idle":  { "type": "frames", "frames": ["assets/player/idle/01.png", "assets/player/idle/02.png", "assets/player/idle/03.png", "assets/player/idle/04.png", "assets/player/idle/05.png", "assets/player/idle/06.png"], "fps": 6, "loop": true, "emoji": "🧑‍🚀" },
+    "up":    { "type": "frames", "frames": ["assets/player/move-up/01.png", "assets/player/move-up/02.png", "assets/player/move-up/03.png", "assets/player/move-up/04.png", "assets/player/move-up/05.png"], "fps": 5, "loop": true, "emoji": "🧑‍🚀" },
     "down":  { "type": "frames", "frames": ["assets/player/down_0.png", "assets/player/down_1.png", "assets/player/down_2.png"], "fps": 6, "loop": true, "emoji": "🧑‍🚀" },
-    "left":  { "type": "frames", "frames": ["assets/player/left_0.png", "assets/player/left_1.png", "assets/player/left_2.png"], "fps": 6, "loop": true, "emoji": "🧑‍🚀" },
-    "right": { "type": "frames", "frames": ["assets/player/left_0.png", "assets/player/left_1.png", "assets/player/left_2.png"], "fps": 6, "loop": true, "emoji": "🧑‍🚀", "mirror": true, "_note": "no move_right sheet was in the source asset sheet -- mirrored from left via CSS/engine transform: scaleX(-1)" },
+    "left":  { "type": "frames", "frames": ["assets/player/move-left/01.png", "assets/player/move-left/02.png", "assets/player/move-left/03.png", "assets/player/move-left/04.png", "assets/player/move-left/05.png", "assets/player/move-left/06.png"], "fps": 6, "loop": true, "emoji": "🧑‍🚀" },
+    "right": { "type": "frames", "frames": ["assets/player/move-right/01.png", "assets/player/move-right/02.png", "assets/player/move-right/03.png", "assets/player/move-right/04.png", "assets/player/move-right/05.png", "assets/player/move-right/06.png"], "fps": 6, "loop": true, "emoji": "🧑‍🚀" },
     "die":   { "type": "frames", "frames": ["assets/player/die_0.png", "assets/player/die_1.png", "assets/player/die_2.png"], "fps": 5, "loop": false, "emoji": "💀" }
   },
 
