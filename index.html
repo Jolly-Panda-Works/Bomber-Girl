@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Bomber Girl</title>
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+<div id="app">
+
+  <div id="splashScreen">
+    <img class="splashLogo" src="assets/logo.png" alt="Bomber Girl">
+    <div class="splashLoading" id="splashLoading">LOADING…</div>
+    <div class="splashTap" id="splashTap" style="display:none;">TAP TO PLAY</div>
+  </div>
+
+  <div class="bgdeco" id="bgdeco"></div>
+
+  <!-- HUD -->
+  <div class="hud">
+    <div class="chip">
+      <div class="avatar" id="avatarGlyph">🧑‍🎄</div>
+      <div class="idbox">
+        <b>BOMBER GIRL</b>
+        <small id="stepLabel">RISK RUN · SAFE 0</small>
+      </div>
+    </div>
+
+    <div class="chip betctrl">
+      <button class="roundbtn minus" id="betMinus">−</button>
+      <div class="betval"><span class="coin">🪙</span><span id="betVal">50</span></div>
+      <button class="roundbtn plus" id="betPlus">+</button>
+    </div>
+
+    <div class="chip multbox">
+      <span class="pill">MULTIPLIER</span>
+      <div class="multval" id="multVal">x1.00</div>
+    </div>
+
+    <div class="chip status" id="phaseChip">
+      <span id="phaseTextTop">SELECT A TILE</span>
+    </div>
+
+    <div class="gear" title="Settings">⚙️</div>
+  </div>
+
+  <!-- side stack -->
+  <div class="sidebar">
+    <div class="sidebox">
+      <h4>🛡️ REWARDS FOUND</h4>
+      <div class="big" id="safeStepVal">0</div>
+      <div class="dots" id="dots"></div>
+    </div>
+    <div class="sidebox">
+      <h4>💰 PAYOUT</h4>
+      <div class="big" id="payoutPreview" style="color:var(--gold);">🪙 50.00</div>
+    </div>
+  </div>
+
+  <!-- board -->
+  <div class="boardwrap">
+    <div class="frame">
+      <div class="board" id="board"></div>
+    </div>
+  </div>
+
+  <!-- bottom bar -->
+  <div class="bottombar">
+    <div class="phaseText" id="statusText">Select an empty tile · Bomber Girl will walk there, plant a bomb, and the blast will destroy nearby boxes</div>
+    <button class="cta end" id="endBtn">END GAME</button>
+  </div>
+
+  <!-- overlay -->
+  <div class="overlay" id="overlay">
+    <div class="card">
+      <h2 id="cardTitle">DEFEAT</h2>
+      <p id="cardSub">A monster caught you outside the Safe Point.</p>
+      <div class="payout" id="cardPayout" style="display:none;"></div>
+      <button class="cta restart" id="restartBtn">PLAY AGAIN</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="assets.js?v=2"></script>
+<script src="game.js?v=2"></script>
+<script src="bootstrap.js?v=2"></script>
+
+</body>
+</html>
