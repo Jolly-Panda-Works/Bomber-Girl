@@ -6,7 +6,7 @@ A cozy, winter-themed "risk run" browser game inspired by classic Bomberman: pic
 
 ## Play it
 
-- **Live demo:** enable GitHub Pages for this repo (see below) and put the link here.
+- **Live demo:** https://jolly-panda-works.github.io/Bomber-Girl/
 - **Locally:** clone the repo and serve the folder — see [Running locally](#running-locally).
 
 ## Running locally
