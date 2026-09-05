@@ -41,6 +41,69 @@ window.startBomberGirl = function(){
     el.style.backgroundImage='';
     el.textContent = (spec && spec.emoji) || '';
   }
+
+  /* Applies an optional image (from assets.json) as the element's
+     background. Unlike mountSprite/useEmojiFallback, there is no emoji
+     fallback here -- if no image is configured, or it fails to load, the
+     element is simply left alone so the existing CSS (gradient tile
+     background, box-shadow border, etc.) shows through exactly as before. */
+  function applyOptionalBackgroundImage(el, spec){
+    const url = spec && spec.src;
+    if(!url){ el.style.backgroundImage=''; return; }
+    if(_imgProbeCache.get(url)===false){ el.style.backgroundImage=''; return; }
+    el.style.backgroundImage = `url("${url}")`;
+    if(_imgProbeCache.get(url)!==true){
+      const probe = new Image();
+      probe.onload = ()=>{ _imgProbeCache.set(url,true); };
+      probe.onerror = ()=>{
+        _imgProbeCache.set(url,false);
+        el.style.backgroundImage='';
+        if(!_imgProbeCache.get('__warned__'+url)){
+          _imgProbeCache.set('__warned__'+url, true);
+          console.warn('[BomberGirl] tile image failed to load, keeping default look. Requested path:', url, '| Resolved absolute URL:', new URL(url, document.baseURI).href);
+        }
+      };
+      probe.src = url;
+    }
+  }
+
+  /* Applies an optional border/frame overlay image (e.g. for the
+     hover/selectable tile state) as a separate layer on top of the tile's
+     own content, so it doesn't interfere with sprites already mounted on
+     the cell. When a real image successfully loads, the built-in CSS
+     highlight (box-shadow) for that state is hidden via .hasOverlayArt so
+     the two don't visually stack; otherwise the CSS highlight is untouched. */
+  function applyOverlayArt(el, spec){
+    const url = spec && spec.src;
+    let art = el.querySelector(':scope > .tileOverlayArt');
+    if(!url || _imgProbeCache.get(url)===false){
+      if(art) art.remove();
+      el.classList.remove('hasOverlayArt');
+      return;
+    }
+    if(!art){
+      art = document.createElement('div');
+      art.className = 'tileOverlayArt';
+      el.appendChild(art);
+    }
+    art.style.backgroundImage = `url("${url}")`;
+    el.classList.add('hasOverlayArt');
+    if(_imgProbeCache.get(url)!==true){
+      const probe = new Image();
+      probe.onload = ()=>{ _imgProbeCache.set(url,true); };
+      probe.onerror = ()=>{
+        _imgProbeCache.set(url,false);
+        if(art) art.remove();
+        el.classList.remove('hasOverlayArt');
+        if(!_imgProbeCache.get('__warned__'+url)){
+          _imgProbeCache.set('__warned__'+url, true);
+          console.warn('[BomberGirl] tile overlay image failed to load, keeping default border. Requested path:', url, '| Resolved absolute URL:', new URL(url, document.baseURI).href);
+        }
+      };
+      probe.src = url;
+    }
+  }
+
   function mountSprite(el, spec, onComplete){
     stopSprite(el);
     el.style.backgroundImage='';
@@ -421,6 +484,10 @@ window.startBomberGirl = function(){
         el.className = cls;
         el.dataset.r=r; el.dataset.c=c;
 
+        if(cell.kind==='snow' || cell.kind==='floor'){
+          applyOptionalBackgroundImage(el, ASSETS.tile && ASSETS.tile.empty);
+        }
+
         if(cell.kind==='deco'){
           mountSprite(el, ASSETS.deco[cell.decoType] || ASSETS.deco.tree);
         }
@@ -450,10 +517,12 @@ window.startBomberGirl = function(){
       for(let c=0;c<COLS;c++){
         const el = cellEl(r,c);
         el.classList.remove('selectable');
+        let isTargetable = false;
         if(phase==='READY' && isSelectableTile(r,c)){
           const path = astar(playerPos, {r,c});
-          if(path) el.classList.add('selectable');
+          if(path){ el.classList.add('selectable'); isTargetable = true; }
         }
+        applyOverlayArt(el, isTargetable ? (ASSETS.tileOverlays && ASSETS.tileOverlays.selectable) : null);
       }
     }
   }

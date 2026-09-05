@@ -1,6 +1,11 @@
 {
-  "_comment": "Centralized asset configuration for Bomberboy. Every gameplay object resolves its look-and-feel from here. Each entry is either {type:'frames', frames:[...], fps, loop, emoji} for animated sprites, or {type:'image', src, emoji} for a static image, or {type:'emoji', emoji} when no art exists yet. 'emoji' is always present as the fallback if the referenced file(s) fail to load. Paths are relative to this file's parent folder (i.e. relative to game_assets/).",
+  "_comment": "Centralized asset configuration for Bomber Girl. Every gameplay object resolves its look-and-feel from here. Each entry is either {type:'frames', frames:[...], fps, loop, emoji} for animated sprites, or {type:'image', src, emoji} for a static image, or {type:'emoji', emoji} when no art exists yet. 'emoji' is always present as the fallback if the referenced file(s) fail to load. Paths are relative to this file's parent folder (i.e. relative to game_assets/).",
   "tileSize": { "width": 32, "height": 32, "note": "source tile size from the asset sheet; scale in-engine as needed" },
+
+  "tile": {
+    "_note": "Base look of a normal walkable board tile (used for both the 'snow' and 'floor' tile kinds). If 'src' is set and the image loads, it replaces the default CSS ice-gradient tile background; leave 'src' null to keep the current default look.",
+    "empty": { "type": "image", "src": "assets/environment/Empty Tile.png", "emoji": null }
+  },
 
   "player": {
     "idle":  { "type": "frames", "frames": ["assets/player/idle/01.png", "assets/player/idle/02.png", "assets/player/idle/03.png", "assets/player/idle/04.png", "assets/player/idle/05.png", "assets/player/idle/06.png"], "fps": 6, "loop": true, "emoji": "🧑‍🚀" },
@@ -21,34 +26,33 @@
   },
 
   "bomb": {
-    "idle":      { "type": "frames", "frames": ["assets/bomb/idle_0.png", "assets/bomb/idle_1.png", "assets/bomb/idle_2.png"], "fps": 4, "loop": true, "emoji": "💣" },
-    "explosion": { "type": "frames", "frames": ["assets/effects/explosion_0.png", "assets/effects/explosion_1.png", "assets/effects/explosion_2.png", "assets/effects/explosion_3.png", "assets/effects/explosion_4.png"], "fps": 10, "loop": false, "emoji": "💥" }
+    "idle":      { "type": "frames", "frames": ["assets/bomb/Bomb - frame 01.png", "assets/bomb/Bomb - frame 02.png", "assets/bomb/Bomb - frame 03.png", "assets/bomb/Bomb - frame 04.png", "assets/bomb/Bomb - frame 05.png", "assets/bomb/Bomb - frame 06.png", "assets/bomb/Bomb - frame 07.png", "assets/bomb/Bomb - frame 08.png"], "fps": 1, "loop": false, "emoji": "💣" },
+    "explosion": { "type": "frames", "frames": [""], "fps": 8, "loop": false, "emoji": "💥" }
   },
 
   "box": {
-    "intact":    { "type": "image", "src": "assets/environment/box_intact.png", "emoji": null },
-    "damaged":   { "type": "image", "src": "assets/environment/box_damaged.png", "emoji": null, "_note": "extracted but not currently wired into gameplay -- intact switches straight to destroyed on explosion" },
-    "destroyed": { "type": "image", "src": "assets/environment/box_destroyed.png", "emoji": null, "_note": "also currently unused -- destroyed boxes revert to a plain floor tile instead of showing debris art" }
+    "intact":    { "type": "image", "src": "assets/environment/Tile - Box.png", "emoji": null }
   },
 
   "reward": { "type": "frames", "frames": ["assets/reward/idle_0.png", "assets/reward/idle_1.png"], "fps": 2, "loop": true, "emoji": "🎁" },
 
   "safePoint": {
-    "idle": { "type": "image", "src": "assets/environment/safepoint_idle.png", "emoji": "🛡️" },
-    "glow": { "type": "image", "src": "assets/environment/safepoint_glow.png", "emoji": "🛡️", "_note": "extracted but not currently wired in -- idle art is used at all times" }
+    "idle": { "type": "image", "src": "assets/environment/safepoint_idle.png", "emoji": "🛡️" }
   },
 
   "deco": {
-    "tree":    { "type": "image", "src": "assets/environment/tree.png", "emoji": "🌲" },
-    "bush":    { "type": "image", "src": "assets/environment/bush.png", "emoji": "🏮" },
-    "snowman": { "type": "image", "src": "assets/environment/snowman.png", "emoji": "⛄" }
+    "tree":    { "type": "image", "src": "assets/environment/Tile - Obstacle 01.png", "emoji": "🌲" },
+    "bush 01":    { "type": "image", "src": "assets/environment/Tile - Obstacle 02.png", "emoji": "🏮" },
+    "bush 02":    { "type": "image", "src": "assets/environment/Tile - Obstacle 03.png", "emoji": "🏮" },
+    "snowman 01": { "type": "image", "src": "assets/environment/Tile - Obstacle 04.png", "emoji": "⛄" },
+    "snowman 02": { "type": "image", "src": "assets/environment/Tile - Obstacle 05.png", "emoji": "⛄" }
   },
 
   "tileOverlays": {
-    "_note": "Selectable/selected/path-preview/blocked tile-frame art was present on the source sheet but is not extracted yet -- the game currently draws these states with CSS box-shadow highlights instead. Add entries here (type:'image') if that art gets extracted later.",
-    "selectable": null,
-    "selected": null,
-    "pathPreview": null,
-    "blocked": null
+    "_note": "Selectable/selected/path-preview/blocked tile-frame art. If 'src' is set and the image loads, it is drawn as a border/frame overlay on top of the tile (replacing the built-in CSS highlight for that state); leave 'src' null to keep the current CSS-only look. 'selectable' is the tile a player can currently click/hover to move to.",
+    "selectable": { "type": "image", "src": null, "emoji": null },
+    "selected": { "type": "image", "src": null, "emoji": null },
+    "pathPreview": { "type": "image", "src": null, "emoji": null },
+    "blocked": { "type": "image", "src": null, "emoji": null }
   }
 }

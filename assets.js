@@ -14,6 +14,14 @@
     "height": 32,
     "note": "source tile size from the asset sheet; scale in-engine as needed"
   },
+  "tile": {
+    "_note": "Base look of a normal walkable board tile (used for both the 'snow' and 'floor' tile kinds). If 'src' is set and the image loads, it replaces the default CSS ice-gradient tile background; leave 'src' null to keep the current default look.",
+    "empty": {
+      "type": "image",
+      "src": null,
+      "emoji": null
+    }
+  },
   "player": {
     "idle": {
       "type": "frames",
@@ -236,11 +244,27 @@
     }
   },
   "tileOverlays": {
-    "_note": "Selectable/selected/path-preview/blocked tile-frame art was present on the source sheet but is not extracted yet -- the game currently draws these states with CSS box-shadow highlights instead. Add entries here (type:'image') if that art gets extracted later.",
-    "selectable": null,
-    "selected": null,
-    "pathPreview": null,
-    "blocked": null
+    "_note": "Selectable/selected/path-preview/blocked tile-frame art. If 'src' is set and the image loads, it is drawn as a border/frame overlay on top of the tile (replacing the built-in CSS highlight for that state); leave 'src' null to keep the current CSS-only look. 'selectable' is the tile a player can currently click/hover to move to.",
+    "selectable": {
+      "type": "image",
+      "src": null,
+      "emoji": null
+    },
+    "selected": {
+      "type": "image",
+      "src": null,
+      "emoji": null
+    },
+    "pathPreview": {
+      "type": "image",
+      "src": null,
+      "emoji": null
+    },
+    "blocked": {
+      "type": "image",
+      "src": null,
+      "emoji": null
+    }
   }
 };
 
@@ -288,6 +312,15 @@
         tree:    resolveFromConfig(cfg.deco.tree),
         bush:    resolveFromConfig(cfg.deco.bush),
         snowman: resolveFromConfig(cfg.deco.snowman)
+      },
+      tile:{
+        empty: resolveFromConfig(cfg.tile && cfg.tile.empty)
+      },
+      tileOverlays:{
+        selectable:  resolveFromConfig(cfg.tileOverlays && cfg.tileOverlays.selectable),
+        selected:    resolveFromConfig(cfg.tileOverlays && cfg.tileOverlays.selected),
+        pathPreview: resolveFromConfig(cfg.tileOverlays && cfg.tileOverlays.pathPreview),
+        blocked:     resolveFromConfig(cfg.tileOverlays && cfg.tileOverlays.blocked)
       }
     };
   }
