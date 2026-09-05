@@ -393,11 +393,10 @@ window.startBomberGirl = function(){
     if(cell.kind==='box' && !cell.destroyed) return false;
     return true;
   }
-  // the monster is never allowed to path onto or through the Safe Point
+  // the monster can path anywhere the player can, including the Safe Point —
+  // reaching the character's house is exactly how a chase is supposed to end
   function isWalkableForMonster(r,c){
-    if(!isWalkable(r,c)) return false;
-    if(r===safePos.r && c===safePos.c) return false;
-    return true;
+    return isWalkable(r,c);
   }
 
   /* ================= A* PATHFINDING ================= */
@@ -786,17 +785,9 @@ window.startBomberGirl = function(){
     const m = gameState.monster;
     if(!gameActive || m.state==='PLAYER_DEAD' || !m.active) return;
 
-    // player standing in the Safe Point is fully protected: the monster cannot
-    // path onto that exact tile (see isWalkableForMonster), so a direct path
-    // to it never exists. Rather than finding no path and freezing wherever
-    // it happens to be, the monster instead paths to the nearest walkable
-    // tile bordering the Safe Point and waits right outside it -- still
-    // fully unable to reach the player, but visibly stalking instead of
-    // looking stuck.
-    let target = playerPos;
-    if(playerPos.r===safePos.r && playerPos.c===safePos.c){
-      target = nearestWalkableNeighbor(safePos, m.position) || playerPos;
-    }
+    // always chase the player's actual tile, wherever it is — including the
+    // Safe Point, so the monster can walk straight into the house.
+    const target = playerPos;
 
     const path = astar(m.position, target, isWalkableForMonster);
 
@@ -814,25 +805,10 @@ window.startBomberGirl = function(){
     scheduleMonsterTick();
   }
 
-  function nearestWalkableNeighbor(center, from){
-    const dirs=[{r:-1,c:0},{r:1,c:0},{r:0,c:-1},{r:0,c:1}];
-    let best=null, bestDist=Infinity;
-    for(const d of dirs){
-      const nr=center.r+d.r, nc=center.c+d.c;
-      if(nr<0||nc<0||nr>=ROWS||nc>=COLS) continue;
-      if(!isWalkableForMonster(nr,nc)) continue;
-      const dist = Math.abs(nr-from.r)+Math.abs(nc-from.c);
-      if(dist<bestDist){ bestDist=dist; best={r:nr,c:nc}; }
-    }
-    return best;
-  }
-
   // shared collision check, called after every player step AND every monster step
   function checkCollision(){
     const m = gameState.monster;
     if(!m.discovered || m.state==='PLAYER_DEAD' || !m.position) return false;
-    const playerIsSafe = (playerPos.r===safePos.r && playerPos.c===safePos.c);
-    if(playerIsSafe) return false; // Safe Point rule: never a lose condition while inside it
     if(m.position.r===playerPos.r && m.position.c===playerPos.c){
       triggerPlayerDeath();
       return true;
@@ -866,7 +842,7 @@ window.startBomberGirl = function(){
     cardTitle.className = won ? 'win' : 'lose';
     cardSub.textContent = won
       ? 'You secured your winnings with '+rewardsFound+' rewards found.'
-      : 'A monster caught Bomber Girl outside the Safe Point. Your bet was lost.';
+      : 'A monster caught up with Bomber Girl. Your bet was lost.';
     cardPayout.style.display = won ? 'block' : 'none';
     cardPayout.textContent = won ? '+🪙 '+payout.toFixed(2) : '';
     overlay.classList.add('show');
