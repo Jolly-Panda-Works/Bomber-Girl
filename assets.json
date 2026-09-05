@@ -16,6 +16,17 @@
     "die":   { "type": "frames", "frames": ["assets/player/die_0.png", "assets/player/die_1.png", "assets/player/die_2.png"], "fps": 5, "loop": false, "emoji": "💀" }
   },
 
+  "avatars": [
+    { "id": "cozy",      "label": "Cozy",      "type": "image", "src": null, "emoji": "🧑‍🎄" },
+    { "id": "astronaut", "label": "Astronaut", "type": "image", "src": null, "emoji": "🧑‍🚀" },
+    { "id": "ninja",     "label": "Ninja",     "type": "image", "src": null, "emoji": "🥷" },
+    { "id": "wizard",    "label": "Wizard",    "type": "image", "src": null, "emoji": "🧙‍♀️" },
+    { "id": "hero",      "label": "Hero",      "type": "image", "src": null, "emoji": "🦸‍♀️" },
+    { "id": "snowpal",   "label": "Snow Pal",  "type": "image", "src": null, "emoji": "⛄" },
+    { "id": "kitty",     "label": "Kitty",     "type": "image", "src": null, "emoji": "🐱" },
+    { "id": "penguin",   "label": "Penguin",   "type": "image", "src": null, "emoji": "🐧" }
+  ],
+
   "monster": {
     "idle":   { "type": "frames", "frames": ["assets/monster/idle_0.png", "assets/monster/idle_1.png"], "fps": 2, "loop": true, "emoji": "👾" },
     "up":     { "type": "frames", "frames": ["assets/monster/up_0.png", "assets/monster/up_1.png", "assets/monster/up_2.png"], "fps": 6, "loop": true, "emoji": "👾" },

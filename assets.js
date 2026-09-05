@@ -91,6 +91,16 @@
       "emoji": "💀"
     }
   },
+  "avatars": [
+    { "id": "cozy",      "label": "Cozy",      "type": "image", "src": null, "emoji": "🧑‍🎄" },
+    { "id": "astronaut", "label": "Astronaut", "type": "image", "src": null, "emoji": "🧑‍🚀" },
+    { "id": "ninja",     "label": "Ninja",     "type": "image", "src": null, "emoji": "🥷" },
+    { "id": "wizard",    "label": "Wizard",    "type": "image", "src": null, "emoji": "🧙‍♀️" },
+    { "id": "hero",      "label": "Hero",      "type": "image", "src": null, "emoji": "🦸‍♀️" },
+    { "id": "snowpal",   "label": "Snow Pal",  "type": "image", "src": null, "emoji": "⛄" },
+    { "id": "kitty",     "label": "Kitty",     "type": "image", "src": null, "emoji": "🐱" },
+    { "id": "penguin",   "label": "Penguin",   "type": "image", "src": null, "emoji": "🐧" }
+  ],
   "monster": {
     "idle": {
       "type": "frames",
@@ -282,6 +292,10 @@
 
   function buildAssets(cfg){
     return {
+      avatars: (cfg.avatars||[]).map(function(a){
+        const resolved = resolveFromConfig(a) || { emoji:a.emoji };
+        return { id:a.id, label:a.label, src:resolved.src, emoji:resolved.emoji };
+      }),
       player:{
         idle:  resolveFromConfig(cfg.player.idle),
         up:    resolveFromConfig(cfg.player.up),

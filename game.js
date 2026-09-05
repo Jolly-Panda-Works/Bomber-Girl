@@ -203,6 +203,154 @@ window.startBomberGirl = function(){
 
   document.documentElement.style.setProperty('--moveDur', CONFIG.movement.characterMoveDuration+'ms');
 
+  /* ================= SOUND SYSTEM ================= */
+  let soundEnabled = true;
+  try{
+    const storedSound = localStorage.getItem('bomberGirl.soundEnabled');
+    if(storedSound!==null) soundEnabled = storedSound==='1';
+  }catch(e){}
+
+  let audioCtx = null;
+  function ensureAudioCtx(){
+    if(!audioCtx){
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if(Ctx) audioCtx = new Ctx();
+    }
+    if(audioCtx && audioCtx.state==='suspended') audioCtx.resume();
+    return audioCtx;
+  }
+  function playTone(freq, duration, type, volume, delay){
+    if(!soundEnabled) return;
+    const ctx = ensureAudioCtx();
+    if(!ctx) return;
+    const t0 = ctx.currentTime + (delay||0);
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type||'sine';
+    osc.frequency.setValueAtTime(freq, t0);
+    gain.gain.setValueAtTime(0, t0);
+    gain.gain.linearRampToValueAtTime(volume||0.2, t0+0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, t0+duration);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(t0); osc.stop(t0+duration+0.02);
+  }
+  function playNoise(duration, volume){
+    if(!soundEnabled) return;
+    const ctx = ensureAudioCtx();
+    if(!ctx) return;
+    const t0 = ctx.currentTime;
+    const bufferSize = Math.max(1, Math.floor(ctx.sampleRate*duration));
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for(let i=0;i<bufferSize;i++){ data[i] = (Math.random()*2-1) * (1 - i/bufferSize); }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(volume||0.25, t0);
+    gain.gain.exponentialRampToValueAtTime(0.001, t0+duration);
+    const filter = ctx.createBiquadFilter();
+    filter.type='lowpass'; filter.frequency.value=1200;
+    noise.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+    noise.start(t0); noise.stop(t0+duration);
+  }
+  const SFX = {
+    click:     ()=>playTone(520, .08, 'square', .12),
+    invalid:   ()=>playTone(160, .12, 'sawtooth', .12),
+    plant:     ()=>playTone(220, .12, 'triangle', .16),
+    explosion: ()=>{ playNoise(.35, .3); playTone(90, .3, 'sine', .2); },
+    reward:    ()=>{ playTone(660, .1, 'sine', .18); playTone(880, .14, 'sine', .16, .09); },
+    monster:   ()=>{ playTone(140, .35, 'sawtooth', .18); playTone(110, .35, 'sawtooth', .14, .12); },
+    win:       ()=>{ [523,659,784,1046].forEach((f,i)=>playTone(f,.18,'triangle',.16,i*0.09)); },
+    lose:      ()=>{ playTone(220,.3,'sawtooth',.16); playTone(160,.4,'sawtooth',.14,.15); },
+    toggle:    ()=>playTone(700, .07, 'square', .12)
+  };
+
+  const soundToggleBtn = document.getElementById('soundToggleBtn');
+  function setSoundEnabled(on, opts){
+    soundEnabled = on;
+    try{ localStorage.setItem('bomberGirl.soundEnabled', on?'1':'0'); }catch(e){}
+    if(soundToggleBtn){
+      soundToggleBtn.textContent = on ? '🔊 ON' : '🔇 OFF';
+      soundToggleBtn.classList.toggle('off', !on);
+      soundToggleBtn.setAttribute('aria-pressed', on ? 'true':'false');
+    }
+    if(on && !(opts && opts.silent)) SFX.toggle();
+  }
+
+  /* ================= SETTINGS MODAL ================= */
+  const gearBtnEl = document.getElementById('gearBtn');
+  const settingsModal = document.getElementById('settingsModal');
+  const settingsModalClose = document.getElementById('settingsModalClose');
+
+  function openSettingsModal(){ settingsModal.classList.add('show'); }
+  function closeSettingsModal(){ settingsModal.classList.remove('show'); }
+
+  gearBtnEl.addEventListener('click', openSettingsModal);
+  gearBtnEl.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openSettingsModal(); } });
+  settingsModalClose.addEventListener('click', ()=>{ SFX.click(); closeSettingsModal(); });
+  settingsModal.addEventListener('click', (e)=>{ if(e.target===settingsModal) closeSettingsModal(); });
+  soundToggleBtn.addEventListener('click', ()=> setSoundEnabled(!soundEnabled));
+
+  setSoundEnabled(soundEnabled, {silent:true}); // sync button label/state without chiming on load
+
+  /* ================= AVATAR SYSTEM ================= */
+  const avatarGlyphEl = document.getElementById('avatarGlyph');
+  const avatarModal = document.getElementById('avatarModal');
+  const avatarGrid = document.getElementById('avatarGrid');
+  const avatarModalClose = document.getElementById('avatarModalClose');
+
+  let avatarId = 'cozy';
+  try{
+    const storedAvatar = localStorage.getItem('bomberGirl.avatarId');
+    if(storedAvatar) avatarId = storedAvatar;
+  }catch(e){}
+
+  function findAvatar(id){
+    const list = (window.ASSETS && ASSETS.avatars) || [];
+    return list.find(a=>a.id===id) || list[0] || { emoji:'🧑‍🎄' };
+  }
+
+  function applyAvatar(id){
+    avatarId = id;
+    mountSprite(avatarGlyphEl, findAvatar(id));
+    try{ localStorage.setItem('bomberGirl.avatarId', id); }catch(e){}
+  }
+
+  function buildAvatarGrid(){
+    avatarGrid.innerHTML='';
+    ((window.ASSETS && ASSETS.avatars) || []).forEach(a=>{
+      const opt = document.createElement('div');
+      opt.className = 'avatarOption' + (a.id===avatarId ? ' selected':'');
+      opt.setAttribute('role','button');
+      opt.setAttribute('tabindex','0');
+      const glyph = document.createElement('div');
+      glyph.className='avatarOptionGlyph';
+      mountSprite(glyph, a);
+      const label = document.createElement('span');
+      label.textContent = a.label||'';
+      opt.appendChild(glyph); opt.appendChild(label);
+      function choose(){
+        applyAvatar(a.id);
+        SFX.click();
+        avatarGrid.querySelectorAll('.avatarOption').forEach(n=>n.classList.remove('selected'));
+        opt.classList.add('selected');
+      }
+      opt.addEventListener('click', choose);
+      opt.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); choose(); } });
+      avatarGrid.appendChild(opt);
+    });
+  }
+
+  function openAvatarModal(){ buildAvatarGrid(); avatarModal.classList.add('show'); }
+  function closeAvatarModal(){ avatarModal.classList.remove('show'); }
+
+  avatarGlyphEl.addEventListener('click', openAvatarModal);
+  avatarGlyphEl.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openAvatarModal(); } });
+  avatarModalClose.addEventListener('click', ()=>{ SFX.click(); closeAvatarModal(); });
+  avatarModal.addEventListener('click', (e)=>{ if(e.target===avatarModal) closeAvatarModal(); });
+
+  applyAvatar(avatarId); // reflect the saved (or default) avatar as soon as the HUD is live
+
   function buildDots(){
     dotsEl.innerHTML='';
     for(let i=0;i<10;i++){ const d=document.createElement('i'); dotsEl.appendChild(d); }
@@ -597,15 +745,18 @@ window.startBomberGirl = function(){
   function onCellClick(r,c){
     if(!gameActive || phase!=='READY') return;
     if(!isSelectableTile(r,c)){
+      SFX.invalid();
       flashInvalid(r,c);
       return;
     }
     const path = astar(playerPos, {r,c});
     if(!path){
+      SFX.invalid();
       flashInvalid(r,c);
       setStatus('No valid path to that tile right now.','BLOCKED');
       return;
     }
+    SFX.click();
     runBombCycle({r,c}, path);
   }
 
@@ -639,6 +790,7 @@ window.startBomberGirl = function(){
     movePlayerAlong(pathToTarget, ()=>{
       phase='PLANTING_BOMB';
       positionActor('player', playerPos, ASSETS.player.idle); // arrived — stop the walk cycle
+      SFX.plant();
       setStatus('Planting bomb…','BOMB PLANTED');
       const bombEl = document.createElement('span');
       bombEl.className='bomb';
@@ -666,6 +818,7 @@ window.startBomberGirl = function(){
     phase='RESOLVING_EXPLOSION';
     stopSprite(bombEl);
     if(bombEl && bombEl.parentNode) bombEl.parentNode.removeChild(bombEl);
+    SFX.explosion();
     setStatus('Bomb exploded!','BOOM!');
 
     const range = CONFIG.bomb.range;
@@ -734,12 +887,13 @@ window.startBomberGirl = function(){
     }
 
     if(justDiscoveredMonsterAt){
+      SFX.monster();
       discoverMonster(justDiscoveredMonsterAt);
       if(rewardCount>0) setStatus('<b>MONSTER!</b> Something is chasing Bomber Girl… (reward also found)','MONSTER!');
       else setStatus('<b>MONSTER!</b> Something is chasing Bomber Girl…','MONSTER!');
       backToReady();
     } else {
-      if(rewardCount>0) setStatus('<b>REWARD FOUND!</b> Multiplier increased.','REWARD FOUND!');
+      if(rewardCount>0){ SFX.reward(); setStatus('<b>REWARD FOUND!</b> Multiplier increased.','REWARD FOUND!'); }
       else setStatus('Nothing there. Pick another tile.','SELECT A TILE');
       backToReady();
     }
@@ -836,6 +990,7 @@ window.startBomberGirl = function(){
     phase='GAME_OVER';
     if(monsterTimerId){ clearTimeout(monsterTimerId); monsterTimerId=null; }
     refreshHud();
+    won ? SFX.win() : SFX.lose();
     const payout = won ? bet*multiplier : 0;
     if(won) balance += payout;
     cardTitle.textContent = won ? 'CASHED OUT!' : 'DEFEAT';
@@ -849,12 +1004,14 @@ window.startBomberGirl = function(){
   }
 
   endBtn.addEventListener('click', ()=>{
+    SFX.click();
     if(!gameActive){ startRound(); return; }
     if(phase!=='READY') return;
     endRound(true);
   });
 
   restartBtn.addEventListener('click', ()=>{
+    SFX.click();
     overlay.classList.remove('show');
     if(monsterTimerId){ clearTimeout(monsterTimerId); monsterTimerId=null; }
     removeActor('monster');
@@ -864,10 +1021,12 @@ window.startBomberGirl = function(){
 
   document.getElementById('betMinus').addEventListener('click', ()=>{
     if(gameActive) return;
+    SFX.click();
     bet = Math.max(10, bet-10); refreshHud();
   });
   document.getElementById('betPlus').addEventListener('click', ()=>{
     if(gameActive) return;
+    SFX.click();
     bet = Math.min(balance, bet+10); refreshHud();
   });
 

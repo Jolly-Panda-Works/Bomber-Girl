@@ -22,7 +22,7 @@
   <!-- HUD -->
   <div class="hud">
     <div class="chip">
-      <div class="avatar" id="avatarGlyph">🧑‍🎄</div>
+      <div class="avatar" id="avatarGlyph" role="button" tabindex="0" title="Change avatar" aria-label="Change avatar">🧑‍🎄</div>
       <div class="idbox">
         <b>BOMBER GIRL</b>
         <small id="stepLabel">RISK RUN · SAFE 0</small>
@@ -44,7 +44,7 @@
       <span id="phaseTextTop">SELECT A TILE</span>
     </div>
 
-    <div class="gear" title="Settings">⚙️</div>
+    <div class="gear" id="gearBtn" title="Settings" role="button" tabindex="0" aria-label="Settings">⚙️</div>
   </div>
 
   <!-- side stack -->
@@ -80,6 +80,29 @@
       <p id="cardSub">A monster caught you outside the Safe Point.</p>
       <div class="payout" id="cardPayout" style="display:none;"></div>
       <button class="cta restart" id="restartBtn">PLAY AGAIN</button>
+    </div>
+  </div>
+
+  <!-- avatar picker -->
+  <div class="overlay" id="avatarModal">
+    <div class="card modalCard">
+      <h2>CHOOSE AVATAR</h2>
+      <p>Pick a look for Bomber Girl. Your choice is saved.</p>
+      <div class="avatarGrid" id="avatarGrid"></div>
+      <button class="cta restart" id="avatarModalClose">DONE</button>
+    </div>
+  </div>
+
+  <!-- settings -->
+  <div class="overlay" id="settingsModal">
+    <div class="card modalCard">
+      <h2>⚙️ SETTINGS</h2>
+      <div class="settingsRow">
+        <span>Sound</span>
+        <button class="soundToggle" id="soundToggleBtn" aria-pressed="true">🔊 ON</button>
+      </div>
+      <button class="cta restart" id="settingsModalClose">CLOSE</button>
+      <div class="credit">Made by <a href="https://useffarahmand.com" target="_blank" rel="noopener noreferrer">Usef Farahmand</a></div>
     </div>
   </div>
 
