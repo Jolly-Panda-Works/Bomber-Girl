@@ -168,6 +168,12 @@
   @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
   .cell .glyph{position:relative;z-index:2;pointer-events:none;}
 
+  .rewardIcon{
+    position:absolute;inset:10%;z-index:4;
+    display:flex;align-items:center;justify-content:center;
+    pointer-events:none;
+  }
+
   .bomb{
     position:absolute;inset:8%;z-index:4;font-size:1.3em;
     animation:fuse .55s infinite alternate;

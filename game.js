@@ -495,10 +495,13 @@ window.startBomberGirl = function(){
           mountSprite(el, ASSETS.safePoint);
         }
         if(cell.kind==='box'){
-          mountSprite(el, cell.destroyed ? null : ASSETS.box.intact);
+          mountSprite(el, cell.destroyed ? ASSETS.box.destroyed : ASSETS.box.intact);
         }
         if(cell.kind==='box' && cell.destroyed && cell.revealed && cell.content==='reward'){
-          mountSprite(el, ASSETS.reward);
+          const rewardEl = document.createElement('span');
+          rewardEl.className = 'rewardIcon';
+          mountSprite(rewardEl, ASSETS.reward);
+          el.appendChild(rewardEl);
         }
         boardEl.appendChild(el);
       }
@@ -784,8 +787,18 @@ window.startBomberGirl = function(){
     if(!gameActive || m.state==='PLAYER_DEAD' || !m.active) return;
 
     // player standing in the Safe Point is fully protected: the monster cannot
-    // path through/onto it, so it simply holds its ground and keeps watching.
-    const path = astar(m.position, playerPos, isWalkableForMonster);
+    // path onto that exact tile (see isWalkableForMonster), so a direct path
+    // to it never exists. Rather than finding no path and freezing wherever
+    // it happens to be, the monster instead paths to the nearest walkable
+    // tile bordering the Safe Point and waits right outside it -- still
+    // fully unable to reach the player, but visibly stalking instead of
+    // looking stuck.
+    let target = playerPos;
+    if(playerPos.r===safePos.r && playerPos.c===safePos.c){
+      target = nearestWalkableNeighbor(safePos, m.position) || playerPos;
+    }
+
+    const path = astar(m.position, target, isWalkableForMonster);
 
     if(path && path.length>1){
       const from = m.position;
@@ -799,6 +812,19 @@ window.startBomberGirl = function(){
     if(checkCollision()) return; // may trigger ATTACKING/PLAYER_DEAD and stop the loop
 
     scheduleMonsterTick();
+  }
+
+  function nearestWalkableNeighbor(center, from){
+    const dirs=[{r:-1,c:0},{r:1,c:0},{r:0,c:-1},{r:0,c:1}];
+    let best=null, bestDist=Infinity;
+    for(const d of dirs){
+      const nr=center.r+d.r, nc=center.c+d.c;
+      if(nr<0||nc<0||nr>=ROWS||nc>=COLS) continue;
+      if(!isWalkableForMonster(nr,nc)) continue;
+      const dist = Math.abs(nr-from.r)+Math.abs(nc-from.c);
+      if(dist<bestDist){ bestDist=dist; best={r:nr,c:nc}; }
+    }
+    return best;
   }
 
   // shared collision check, called after every player step AND every monster step
@@ -901,5 +927,6 @@ window.startBomberGirl = function(){
   render();
   refreshHud();
   setStatus('Tap "START" to begin your Risk Run · Select an empty tile to bomb nearby boxes once it begins','TAP TO START');
+
 
 };
