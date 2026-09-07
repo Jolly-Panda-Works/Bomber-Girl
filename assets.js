@@ -322,11 +322,14 @@
       },
       reward:    resolveFromConfig(cfg.reward),
       safePoint: resolveFromConfig(cfg.safePoint.idle),
-      deco:{
-        tree:    resolveFromConfig(cfg.deco.tree),
-        bush:    resolveFromConfig(cfg.deco.bush),
-        snowman: resolveFromConfig(cfg.deco.snowman)
-      },
+      // Dynamically pull EVERY obstacle entry defined in assets.json's "deco"
+      // block (rather than a hardcoded tree/bush/snowman trio), so adding,
+      // renaming, or removing obstacle art in assets.json is automatically
+      // reflected here with no code change needed.
+      deco: Object.keys(cfg.deco||{}).reduce(function(acc,k){
+        acc[k] = resolveFromConfig(cfg.deco[k]);
+        return acc;
+      }, {}),
       tile:{
         empty: resolveFromConfig(cfg.tile && cfg.tile.empty)
       },

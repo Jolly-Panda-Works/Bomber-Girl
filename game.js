@@ -9,7 +9,8 @@ window.startBomberGirl = function(){
     content:{ rewardChance:70 }, // chance a non-monster box holds a reward vs. empty; the monster is placed once at board-gen (see MONSTER SYSTEM), not rolled per box
     reward:{ multiplierIncrease:0.25 },
     monster:{ moveDuration:300 },
-    density:{ decoChance:0.13 } // chance any remaining box cell becomes a permanent (non-destroyable) obstacle
+    density:{ decoChance:0.13 }, // chance any remaining box cell becomes a permanent (non-destroyable) obstacle, ON TOP OF the guaranteed one-of-each pass below
+    paths:{ min:1, max:3 } // how many distinct open corridors are carved from the Safe Point each game
   };
 
 
@@ -406,8 +407,89 @@ window.startBomberGirl = function(){
     gameState.monster.position=null;
   }
 
-  // ---- board carving: start as all obstacles, carve a connected corridor network
-  // outward from the Safe Point, so every open tile is guaranteed reachable. ----
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
+    return arr;
+  }
+
+  // Spread-out far points to steer corridors toward (corners + edge
+  // midpoints, away from the Safe Point's own row). Picking targets that are
+  // mutually far apart is what keeps 2-3 corridors from all heading into the
+  // same quadrant and clumping the open area in one corner.
+  function pickSpreadTargets(n){
+    const candidates = shuffle([
+      {r:0,c:0}, {r:0,c:COLS-1},
+      {r:0,c:Math.floor(COLS/2)},
+      {r:Math.floor(ROWS/2),c:0}, {r:Math.floor(ROWS/2),c:COLS-1},
+      {r:1,c:Math.floor(COLS*0.25)}, {r:1,c:Math.floor(COLS*0.75)}
+    ]);
+    const picked = [candidates[0]];
+    while(picked.length<n && picked.length<candidates.length){
+      let best=null, bestDist=-1;
+      for(const cand of candidates){
+        if(picked.includes(cand)) continue;
+        const minDist = Math.min(...picked.map(p=>Math.abs(p.r-cand.r)+Math.abs(p.c-cand.c)));
+        if(minDist>bestDist){ bestDist=minDist; best=cand; }
+      }
+      if(best) picked.push(best); else break;
+    }
+    return picked;
+  }
+
+  // Carves one winding corridor from the nearest already-open tile toward
+  // `target`, mostly stepping closer to it (so it actually reaches that
+  // spread-out part of the board) but with enough randomness to wind rather
+  // than draw a straight line.
+  function carvePathTo(target, visited){
+    let start = safePos, bestD = Infinity;
+    visited.forEach(k=>{
+      const parts = k.split('_');
+      const r=+parts[0], c=+parts[1];
+      const d = Math.abs(r-target.r)+Math.abs(c-target.c);
+      if(d<bestD){ bestD=d; start={r,c}; }
+    });
+
+    function markOpen(p){
+      const k = key(p.r,p.c);
+      if(visited.has(k)) return;
+      visited.add(k);
+      grid[p.r][p.c].kind = Math.random()<0.28 ? 'snow' : 'floor';
+    }
+
+    let cur = {...start};
+    markOpen(cur);
+    let guard = ROWS*COLS*2;
+    while((cur.r!==target.r || cur.c!==target.c) && guard-->0){
+      const options = [
+        {r:cur.r-1,c:cur.c},{r:cur.r+1,c:cur.c},{r:cur.r,c:cur.c-1},{r:cur.r,c:cur.c+1}
+      ].filter(p=>p.r>=0&&p.c>=0&&p.r<ROWS&&p.c<COLS);
+      options.sort((a,b)=>{
+        const da = Math.abs(a.r-target.r)+Math.abs(a.c-target.c);
+        const db = Math.abs(b.r-target.r)+Math.abs(b.c-target.c);
+        return da-db;
+      });
+      const next = (Math.random()<0.7)
+        ? options[Math.floor(Math.random()*Math.min(2,options.length))] // usually step closer, small wiggle
+        : options[Math.floor(Math.random()*options.length)];           // occasionally wander for a winding look
+      cur = next;
+      markOpen(cur);
+      // occasionally widen the corridor by opening one more side cell, so the
+      // path isn't a bare 1-tile maze and boxes/obstacles end up bordering it
+      // along its whole length rather than only at its far end.
+      if(Math.random()<0.4){
+        const side = [
+          {r:cur.r-1,c:cur.c},{r:cur.r+1,c:cur.c},{r:cur.r,c:cur.c-1},{r:cur.r,c:cur.c+1}
+        ].filter(p=>p.r>=0&&p.c>=0&&p.r<ROWS&&p.c<COLS);
+        markOpen(side[Math.floor(Math.random()*side.length)]);
+      }
+    }
+  }
+
+  // ---- board carving: start as all obstacles, carve 1-3 connected corridors
+  // outward from the Safe Point toward spread-out targets, so every open tile
+  // is guaranteed reachable AND the open area (and the boxes/obstacles around
+  // it) is distributed across the whole board instead of clumping in one
+  // corner. ----
   function buildRawBoard(){
     grid = [];
     for(let r=0;r<ROWS;r++){
@@ -418,35 +500,13 @@ window.startBomberGirl = function(){
     safePos = { r: ROWS-1, c: Math.floor(COLS/2) };
     grid[safePos.r][safePos.c].kind = 'safepoint';
 
-    const total = COLS*ROWS;
-    const targetOpen = Math.round(total * 0.5); // ~50% of the board becomes open path
     const visited = new Set([key(safePos.r,safePos.c)]);
-    const stack = [safePos];
-    let openCount = 0;
-
-    function shuffledNeighbors(p){
-      const n = [
-        {r:p.r-1,c:p.c},{r:p.r+1,c:p.c},{r:p.r,c:p.c-1},{r:p.r,c:p.c+1}
-      ].filter(q=>q.r>=0&&q.c>=0&&q.r<ROWS&&q.c<COLS);
-      for(let i=n.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [n[i],n[j]]=[n[j],n[i]]; }
-      return n;
-    }
-
-    // randomized DFS "drunkard's walk" carve — produces a single connected
-    // network of corridors/rooms with branches and dead ends, by construction.
-    while(stack.length>0 && openCount<targetOpen){
-      const current = stack[stack.length-1];
-      const options = shuffledNeighbors(current).filter(n=>!visited.has(key(n.r,n.c)));
-      if(options.length===0){ stack.pop(); continue; }
-      const next = options[0];
-      visited.add(key(next.r,next.c));
-      grid[next.r][next.c].kind = Math.random()<0.28 ? 'snow' : 'floor';
-      openCount++;
-      stack.push(next);
-    }
+    const numPaths = CONFIG.paths.min + Math.floor(Math.random()*(CONFIG.paths.max-CONFIG.paths.min+1));
+    const targets = pickSpreadTargets(numPaths);
+    targets.forEach(t=>carvePathTo(t, visited));
 
     // add a handful of extra openings so corridors get intersections / loops
-    // instead of a purely single-path maze (still only ever replacing a box
+    // instead of purely single-width paths (still only ever replacing a box
     // with floor, so this can only add connectivity, never remove it).
     for(let r=0;r<ROWS;r++){
       for(let c=0;c<COLS;c++){
@@ -464,17 +524,31 @@ window.startBomberGirl = function(){
     // guarantee the Safe Point isn't boxed in: force-open extra neighbors if needed
     ensureSafePointConnections();
 
-    // scatter a few permanent decorative obstacles (never destroyable) among
-    // whatever is still a box — doesn't affect connectivity since boxes were
-    // never walkable to begin with.
-    for(let r=0;r<ROWS;r++){
-      for(let c=0;c<COLS;c++){
-        if(grid[r][c].kind==='box' && Math.random()<CONFIG.density.decoChance){
-          grid[r][c].kind='deco';
-          const opts = Object.keys(ASSETS.deco);
-          grid[r][c].decoType = opts[Math.floor(Math.random()*opts.length)];
+    // ---- scatter permanent decorative obstacles (never destroyable) among
+    // whatever is still a box. First guarantee one of every obstacle type
+    // defined in assets.json actually appears (placed on random, spread-out
+    // box cells), then fill in extra deco cells by chance, cycling through
+    // the type list so no single type dominates. Doesn't affect connectivity
+    // since boxes were never walkable to begin with. ----
+    const decoTypes = shuffle(Object.keys(ASSETS.deco||{}));
+    if(decoTypes.length){
+      const boxCells = shuffle((()=>{
+        const cells=[];
+        for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) if(grid[r][c].kind==='box') cells.push({r,c});
+        return cells;
+      })());
+      const guaranteedCount = Math.min(decoTypes.length, boxCells.length);
+      const decoCells = [];
+      boxCells.forEach((cell,i)=>{
+        const isGuaranteedSlot = i<guaranteedCount;
+        if(isGuaranteedSlot || Math.random()<CONFIG.density.decoChance){
+          decoCells.push(cell);
         }
-      }
+      });
+      decoCells.forEach((p,i)=>{
+        grid[p.r][p.c].kind='deco';
+        grid[p.r][p.c].decoType = decoTypes[i % decoTypes.length];
+      });
     }
   }
 
