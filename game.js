@@ -571,17 +571,23 @@ window.startBomberGirl = function(){
     // defined in assets.json actually appears (placed on random, spread-out
     // box cells), then fill in extra deco cells by chance, cycling through
     // the type list so no single type dominates. Doesn't affect connectivity
-    // since boxes were never walkable to begin with. ----
+    // since boxes were never walkable to begin with.
+    //
+    // One box cell is always held back from becoming deco (see `reserved`
+    // below) so there is guaranteed to be at least one real box left for
+    // generateBoard() to secretly place the monster in — a board with zero
+    // remaining boxes would mean no monster (and no rewards) that run. ----
     const decoTypes = shuffle(Object.keys(ASSETS.deco||{}));
-    if(decoTypes.length){
-      const boxCells = shuffle((()=>{
-        const cells=[];
-        for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) if(grid[r][c].kind==='box') cells.push({r,c});
-        return cells;
-      })());
-      const guaranteedCount = Math.min(decoTypes.length, boxCells.length);
+    const allBoxCells = shuffle((()=>{
+      const cells=[];
+      for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) if(grid[r][c].kind==='box') cells.push({r,c});
+      return cells;
+    })());
+    if(decoTypes.length && allBoxCells.length){
+      const reserved = allBoxCells.pop(); // never turned into deco — guarantees >=1 box survives
+      const guaranteedCount = Math.min(decoTypes.length, allBoxCells.length);
       const decoCells = [];
-      boxCells.forEach((cell,i)=>{
+      allBoxCells.forEach((cell,i)=>{
         const isGuaranteedSlot = i<guaranteedCount;
         if(isGuaranteedSlot || Math.random()<CONFIG.density.decoChance){
           decoCells.push(cell);
@@ -646,7 +652,16 @@ window.startBomberGirl = function(){
         }
       }
     }
-    return reachableOpen >= 14; // enough room for a meaningful run
+    if(reachableOpen < 14) return false; // enough room for a meaningful run
+
+    // A board needs at least one 'box' cell left for generateBoard() to
+    // secretly place the single required monster in — extremely rare, but
+    // guard against a board that carved/decorated its way to zero boxes.
+    let hasBoxCell = false;
+    for(let r=0;r<ROWS && !hasBoxCell;r++){
+      for(let c=0;c<COLS;c++){ if(grid[r][c].kind==='box'){ hasBoxCell=true; break; } }
+    }
+    return hasBoxCell;
   }
 
   function isWalkable(r,c){
