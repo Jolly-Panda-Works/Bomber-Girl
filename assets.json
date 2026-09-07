@@ -17,12 +17,12 @@
   },
 
   "avatars": [
-    { "id": "cozy",      "label": "Cozy",      "type": "image", "src": "assets/avatar/1.png", "emoji": "🧑‍🎄" },
-    { "id": "astronaut", "label": "Astronaut", "type": "image", "src": "assets/avatar/2.png", "emoji": "🧑‍🚀" },
-    { "id": "ninja",     "label": "Ninja",     "type": "image", "src": "assets/avatar/3.png", "emoji": "🥷" },
-    { "id": "wizard",    "label": "Wizard",    "type": "image", "src": "assets/avatar/4.png", "emoji": "🧙‍♀️" },
-    { "id": "hero",      "label": "Hero",      "type": "image", "src": "assets/avatar/5.png", "emoji": "🦸‍♀️" },
-    { "id": "snowpal",   "label": "Snow Pal",  "type": "image", "src": "assets/avatar/6.png", "emoji": "⛄" }
+    { "id": "cozy",      "label": "Wink",      "type": "image", "src": "assets/avatar/1.png", "emoji": "😉" },
+    { "id": "astronaut", "label": "Astonished", "type": "image", "src": "assets/avatar/2.png", "emoji": "😲" },
+    { "id": "ninja",     "label": "Pleading",     "type": "image", "src": "assets/avatar/3.png", "emoji": "🥺" },
+    { "id": "wizard",    "label": "Smiling",    "type": "image", "src": "assets/avatar/4.png", "emoji": "😈" },
+    { "id": "hero",      "label": "Happy",      "type": "image", "src": "assets/avatar/5.png", "emoji": "😂" },
+    { "id": "snowpal",   "label": "Cute",  "type": "image", "src": "assets/avatar/6.png", "emoji": "☺️" }
   ],
 
   "monster": {
