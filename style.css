@@ -273,7 +273,7 @@
   .avatarOption .avatarOptionGlyph{
     width:40px;height:40px;border-radius:9px;font-size:22px;
     display:flex;align-items:center;justify-content:center;
-    background:radial-gradient(circle at 35% 30%, #7fc7ff, #2a6fc9);
+    background-image:radial-gradient(circle at 35% 30%, #7fc7ff, #2a6fc9);
   }
   .avatarOption span{font-size:9px;letter-spacing:.3px;color:#b9cdee;}
   .avatarOption:hover{filter:brightness(1.12);transform:translateY(-1px);}

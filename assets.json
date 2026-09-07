@@ -10,45 +10,43 @@
   "player": {
     "idle":  { "type": "frames", "frames": ["assets/player/idle/01.png", "assets/player/idle/02.png", "assets/player/idle/03.png", "assets/player/idle/04.png", "assets/player/idle/05.png", "assets/player/idle/06.png"], "fps": 6, "loop": true, "emoji": "🧑‍🚀" },
     "up":    { "type": "frames", "frames": ["assets/player/move-up/01.png", "assets/player/move-up/02.png", "assets/player/move-up/03.png", "assets/player/move-up/04.png", "assets/player/move-up/05.png"], "fps": 5, "loop": true, "emoji": "🧑‍🚀" },
-    "down":  { "type": "frames", "frames": ["assets/player/down_0.png", "assets/player/down_1.png", "assets/player/down_2.png"], "fps": 6, "loop": true, "emoji": "🧑‍🚀" },
+    "down":  { "type": "frames", "frames": ["assets/player/move-down/1.png", "assets/player/move-down/2.png", "assets/player/move-down/3.png", "assets/player/move-down/4.png", "assets/player/move-down/5.png", "assets/player/move-down/6.png", "assets/player/move-down/7.png"], "fps": 7, "loop": true, "emoji": "🧑‍🚀" },
     "left":  { "type": "frames", "frames": ["assets/player/move-left/01.png", "assets/player/move-left/02.png", "assets/player/move-left/03.png", "assets/player/move-left/04.png", "assets/player/move-left/05.png", "assets/player/move-left/06.png"], "fps": 6, "loop": true, "emoji": "🧑‍🚀" },
-    "right": { "type": "frames", "frames": ["assets/player/move-right/01.png", "assets/player/move-right/02.png", "assets/player/move-right/03.png", "assets/player/move-right/04.png", "assets/player/move-right/05.png", "assets/player/move-right/06.png"], "fps": 6, "loop": true, "emoji": "🧑‍🚀" },
-    "die":   { "type": "frames", "frames": ["assets/player/die_0.png", "assets/player/die_1.png", "assets/player/die_2.png"], "fps": 5, "loop": false, "emoji": "💀" }
+    "right": { "type": "frames", "frames": ["assets/player/move-right/1.png", "assets/player/move-right/2.png", "assets/player/move-right/3.png", "assets/player/move-right/4.png", "assets/player/move-right/5.png", "assets/player/move-right/6.png"], "fps": 6, "loop": true, "emoji": "🧑‍🚀" },
+    "die":   { "type": "frames", "frames": ["assets/player/die/1.png", "assets/player/die/2.png", "assets/player/die/3.png", "assets/player/die/4.png"], "fps": 4, "loop": false, "emoji": "💀" }
   },
 
   "avatars": [
-    { "id": "cozy",      "label": "Cozy",      "type": "image", "src": null, "emoji": "🧑‍🎄" },
-    { "id": "astronaut", "label": "Astronaut", "type": "image", "src": null, "emoji": "🧑‍🚀" },
-    { "id": "ninja",     "label": "Ninja",     "type": "image", "src": null, "emoji": "🥷" },
-    { "id": "wizard",    "label": "Wizard",    "type": "image", "src": null, "emoji": "🧙‍♀️" },
-    { "id": "hero",      "label": "Hero",      "type": "image", "src": null, "emoji": "🦸‍♀️" },
-    { "id": "snowpal",   "label": "Snow Pal",  "type": "image", "src": null, "emoji": "⛄" },
-    { "id": "kitty",     "label": "Kitty",     "type": "image", "src": null, "emoji": "🐱" },
-    { "id": "penguin",   "label": "Penguin",   "type": "image", "src": null, "emoji": "🐧" }
+    { "id": "cozy",      "label": "Cozy",      "type": "image", "src": "assets/avatar/1.png", "emoji": "🧑‍🎄" },
+    { "id": "astronaut", "label": "Astronaut", "type": "image", "src": "assets/avatar/2.png", "emoji": "🧑‍🚀" },
+    { "id": "ninja",     "label": "Ninja",     "type": "image", "src": "assets/avatar/3.png", "emoji": "🥷" },
+    { "id": "wizard",    "label": "Wizard",    "type": "image", "src": "assets/avatar/4.png", "emoji": "🧙‍♀️" },
+    { "id": "hero",      "label": "Hero",      "type": "image", "src": "assets/avatar/5.png", "emoji": "🦸‍♀️" },
+    { "id": "snowpal",   "label": "Snow Pal",  "type": "image", "src": "assets/avatar/6.png", "emoji": "⛄" }
   ],
 
   "monster": {
-    "idle":   { "type": "frames", "frames": ["assets/monster/idle_0.png", "assets/monster/idle_1.png"], "fps": 2, "loop": true, "emoji": "👾" },
-    "up":     { "type": "frames", "frames": ["assets/monster/up_0.png", "assets/monster/up_1.png", "assets/monster/up_2.png"], "fps": 6, "loop": true, "emoji": "👾" },
-    "down":   { "type": "frames", "frames": ["assets/monster/down_0.png", "assets/monster/down_1.png", "assets/monster/down_2.png"], "fps": 6, "loop": true, "emoji": "👾" },
-    "left":   { "type": "frames", "frames": ["assets/monster/left_0.png", "assets/monster/left_1.png", "assets/monster/left_2.png"], "fps": 6, "loop": true, "emoji": "👾" },
-    "right":  { "type": "frames", "frames": ["assets/monster/right_0.png", "assets/monster/right_1.png", "assets/monster/right_2.png"], "fps": 6, "loop": true, "emoji": "👾" },
-    "attack": { "type": "frames", "frames": ["assets/monster/attack_0.png", "assets/monster/attack_1.png", "assets/monster/attack_2.png"], "fps": 6, "loop": false, "emoji": "👹" }
+    "idle":   { "type": "frames", "frames": ["assets/monster/Idle-1.png", "assets/monster/Idle-2.png"], "fps": 2, "loop": true, "emoji": "👾" },
+    "up":     { "type": "frames", "frames": ["assets/monster/Up-1.png", "assets/monster/Up-2.png"], "fps": 2, "loop": true, "emoji": "👾" },
+    "down":   { "type": "frames", "frames": ["assets/monster/Down-1.png", "assets/monster/Down-2.png", "assets/monster/Down-3.png"], "fps": 3, "loop": true, "emoji": "👾" },
+    "left":   { "type": "frames", "frames": ["assets/monster/Left-1.png", "assets/monster/Left-2.png", "assets/monster/Left-3.png"], "fps": 3, "loop": true, "emoji": "👾" },
+    "right":  { "type": "frames", "frames": ["assets/monster/Right-1.png", "assets/monster/Right-2.png", "assets/monster/right_2.png"], "fps": 6, "loop": true, "emoji": "👾" },
+    "attack": { "type": "frames", "frames": ["assets/monster/Attak-1.png", "assets/monster/Attack-2.png"], "fps": 2, "loop": false, "emoji": "👹" }
   },
 
   "bomb": {
     "idle":      { "type": "frames", "frames": ["assets/bomb/Bomb - frame 01.png", "assets/bomb/Bomb - frame 02.png", "assets/bomb/Bomb - frame 03.png", "assets/bomb/Bomb - frame 04.png", "assets/bomb/Bomb - frame 05.png", "assets/bomb/Bomb - frame 06.png", "assets/bomb/Bomb - frame 07.png", "assets/bomb/Bomb - frame 08.png"], "fps": 1, "loop": false, "emoji": "💣" },
-    "explosion": { "type": "frames", "frames": [""], "fps": 8, "loop": false, "emoji": "💥" }
+    "explosion": { "type": "frames", "frames": ["assets/effects/explosion/1.png", "assets/effects/explosion/2.png", "assets/effects/explosion/3.png", "assets/effects/explosion/4.png", "assets/effects/explosion/5.png", "assets/effects/explosion/6.png", "assets/effects/explosion/7.png", "assets/effects/explosion/8.png", "assets/effects/explosion/9.png"], "fps": 9, "loop": false, "emoji": "💥" }
   },
 
   "box": {
     "intact":    { "type": "image", "src": "assets/environment/Tile - Box.png", "emoji": null }
   },
 
-  "reward": { "type": "frames", "frames": ["assets/reward/idle_0.png", "assets/reward/idle_1.png"], "fps": 2, "loop": true, "emoji": "🎁" },
+  "reward": { "type": "frames", "frames": ["assets/reward/Tile - Chest.png"], "fps": 1, "loop": false, "emoji": "🎁" },
 
   "safePoint": {
-    "idle": { "type": "image", "src": "assets/environment/safepoint_idle.png", "emoji": "🛡️" }
+    "idle": { "type": "image", "src": "assets/environment/Tile - Safe Point.png", "emoji": "🛡️" }
   },
 
   "deco": {
