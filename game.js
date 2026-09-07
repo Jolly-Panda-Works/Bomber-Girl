@@ -239,7 +239,6 @@ window.startBomberGirl = function(){
   const phaseTextTop = document.getElementById('phaseTextTop');
   const endBtn = document.getElementById('endBtn');
   const walletLabelEl = document.getElementById('walletLabel');
-  const betValEl = document.getElementById('betVal');
   const multValEl = document.getElementById('multVal');
   const stepLabel = document.getElementById('stepLabel');
   const safeStepVal = document.getElementById('safeStepVal');
@@ -838,7 +837,6 @@ window.startBomberGirl = function(){
   }
 
   function refreshHud(){
-    betValEl.textContent = bet;
     multValEl.textContent = 'x'+multiplier.toFixed(2);
     stepLabel.textContent = 'RISK RUN · SAFE '+rewardsFound;
     walletLabelEl.textContent = '🪙 '+formatCoins(balance);
@@ -1118,10 +1116,10 @@ window.startBomberGirl = function(){
     gameActive=false;
     phase='GAME_OVER';
     if(monsterTimerId){ clearTimeout(monsterTimerId); monsterTimerId=null; }
-    refreshHud();
     won ? SFX.win() : SFX.lose();
     const payout = won ? bet*multiplier : 0;
     if(won) setCoins(balance + payout);
+    refreshHud();
     cardTitle.textContent = won ? 'CASHED OUT!' : 'DEFEAT';
     cardTitle.className = won ? 'win' : 'lose';
     cardSub.textContent = won
@@ -1145,17 +1143,6 @@ window.startBomberGirl = function(){
     removeActor('monster');
     gameActive=false;
     openBetSelectModal(); // choose a fresh bet before every new run
-  });
-
-  document.getElementById('betMinus').addEventListener('click', ()=>{
-    if(gameActive) return;
-    SFX.click();
-    bet = Math.max(10, bet-10); refreshHud();
-  });
-  document.getElementById('betPlus').addEventListener('click', ()=>{
-    if(gameActive) return;
-    SFX.click();
-    bet = Math.min(1000, balance, bet+10); refreshHud();
   });
 
   /* ================= BET SELECTION (shown before every run) =================
