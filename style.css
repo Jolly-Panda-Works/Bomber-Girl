@@ -300,6 +300,19 @@
     background:linear-gradient(180deg,#5a6a86,#374156);
     box-shadow:0 3px 0 #22304a;
   }
+  /* ---------- bet selection modal ---------- */
+  .walletRow{
+    display:flex;align-items:center;justify-content:space-between;
+    background:#101f3f;border:1px solid #26406e;border-radius:10px;
+    padding:8px 14px;margin:6px 0 14px;font-size:13px;color:#e3edff;
+  }
+  .walletRow b{color:var(--gold);font-size:16px;}
+  .betSelectControls{justify-content:center;margin:0 0 12px;}
+  .betSlider{
+    width:100%;margin:0 0 18px;accent-color:var(--gold);cursor:pointer;
+  }
+  #betSelectModal .cta:disabled{opacity:.35;}
+
   .credit{margin-top:4px;font-size:11px;color:#8fa8cf;}
   .credit a{color:#8fd0f5;text-decoration:none;font-weight:700;}
   .credit a:hover{text-decoration:underline;}

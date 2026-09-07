@@ -169,7 +169,7 @@ window.startBomberGirl = function(){
      the sound preference, and the picked avatar all survive page
      reloads/restarts instead of resetting each time. */
   const PROFILE_KEY = 'bomberGirl.profile';
-  const DEFAULT_PROFILE = { id:null, coins:500, soundEnabled:true, avatarId:'cozy', createdAt:null };
+  const DEFAULT_PROFILE = { id:null, coins:1000, soundEnabled:true, avatarId:'cozy', createdAt:null };
 
   function makeProfileId(){
     return 'player_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
@@ -238,6 +238,7 @@ window.startBomberGirl = function(){
   const statusEl = document.getElementById('statusText');
   const phaseTextTop = document.getElementById('phaseTextTop');
   const endBtn = document.getElementById('endBtn');
+  const walletLabelEl = document.getElementById('walletLabel');
   const betValEl = document.getElementById('betVal');
   const multValEl = document.getElementById('multVal');
   const stepLabel = document.getElementById('stepLabel');
@@ -828,10 +829,19 @@ window.startBomberGirl = function(){
   }
 
   /* ================= HUD ================= */
+  // Coins are shown without noisy decimals when the amount happens to be a
+  // whole number (the common case), but keep 2 decimals when a multiplier
+  // payout leaves a fractional amount (e.g. a 50-coin bet at x1.25).
+  function formatCoins(n){
+    const rounded = Math.round(n*100)/100;
+    return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2);
+  }
+
   function refreshHud(){
     betValEl.textContent = bet;
     multValEl.textContent = 'x'+multiplier.toFixed(2);
     stepLabel.textContent = 'RISK RUN · SAFE '+rewardsFound;
+    walletLabelEl.textContent = '🪙 '+formatCoins(balance);
     safeStepVal.textContent = rewardsFound;
     payoutPreview.textContent = '🪙 '+(bet*multiplier).toFixed(2);
     const dots = dotsEl.children;
@@ -1134,7 +1144,7 @@ window.startBomberGirl = function(){
     if(monsterTimerId){ clearTimeout(monsterTimerId); monsterTimerId=null; }
     removeActor('monster');
     gameActive=false;
-    startRound();
+    openBetSelectModal(); // choose a fresh bet before every new run
   });
 
   document.getElementById('betMinus').addEventListener('click', ()=>{
@@ -1145,7 +1155,75 @@ window.startBomberGirl = function(){
   document.getElementById('betPlus').addEventListener('click', ()=>{
     if(gameActive) return;
     SFX.click();
-    bet = Math.min(balance, bet+10); refreshHud();
+    bet = Math.min(1000, balance, bet+10); refreshHud();
+  });
+
+  /* ================= BET SELECTION (shown before every run) =================
+     The player picks how many coins to risk — between 10 and 1000 — and can
+     never bet more than the coins they currently have. The chosen amount
+     becomes `bet` for the round about to start. */
+  const betSelectModal = document.getElementById('betSelectModal');
+  const betSelectHint = document.getElementById('betSelectHint');
+  const betSelectWallet = document.getElementById('betSelectWallet');
+  const betSelectAmount = document.getElementById('betSelectAmount');
+  const betSelectMinus = document.getElementById('betSelectMinus');
+  const betSelectPlus = document.getElementById('betSelectPlus');
+  const betSelectSlider = document.getElementById('betSelectSlider');
+  const betSelectStart = document.getElementById('betSelectStart');
+
+  let selectedBet = 50; // remembers the last chosen bet as the default for next time
+
+  // The most coins the player is allowed to put on the line this run: never
+  // more than 1000, and never more than what they actually have.
+  function maxSelectableBet(){
+    return Math.min(1000, Math.floor(balance/10)*10);
+  }
+
+  function refreshBetSelectUI(){
+    const max = maxSelectableBet();
+    const canPlay = max>=10;
+    betSelectWallet.textContent = formatCoins(balance);
+    betSelectHint.textContent = canPlay
+      ? 'Choose how many coins to risk this run.'
+      : "You don't have enough coins left for a new bet.";
+    betSelectSlider.min = 10;
+    betSelectSlider.max = canPlay ? max : 10;
+    betSelectSlider.value = canPlay ? selectedBet : 10;
+    betSelectSlider.disabled = !canPlay;
+    betSelectAmount.textContent = canPlay ? selectedBet : 0;
+    betSelectMinus.disabled = !canPlay || selectedBet<=10;
+    betSelectPlus.disabled = !canPlay || selectedBet>=max;
+    betSelectStart.disabled = !canPlay;
+  }
+
+  function openBetSelectModal(){
+    const max = maxSelectableBet();
+    selectedBet = max>=10 ? Math.min(Math.max(selectedBet, 10), max) : 10;
+    refreshBetSelectUI();
+    betSelectModal.classList.add('show');
+  }
+  function closeBetSelectModal(){ betSelectModal.classList.remove('show'); }
+
+  betSelectMinus.addEventListener('click', ()=>{
+    SFX.click();
+    selectedBet = Math.max(10, selectedBet-10);
+    refreshBetSelectUI();
+  });
+  betSelectPlus.addEventListener('click', ()=>{
+    SFX.click();
+    selectedBet = Math.min(maxSelectableBet(), selectedBet+10);
+    refreshBetSelectUI();
+  });
+  betSelectSlider.addEventListener('input', ()=>{
+    selectedBet = Math.min(maxSelectableBet(), Math.max(10, +betSelectSlider.value||10));
+    refreshBetSelectUI();
+  });
+  betSelectStart.addEventListener('click', ()=>{
+    if(maxSelectableBet()<10) return;
+    SFX.click();
+    bet = selectedBet;
+    closeBetSelectModal();
+    startRound();
   });
 
   boardEl.addEventListener('click', (e)=>{
@@ -1175,8 +1253,10 @@ window.startBomberGirl = function(){
     hoverPathCells=[];
   }
 
-  /* game starts immediately once the player taps "TAP TO PLAY" on the splash
-     screen — there is no separate manual "START" step/button. */
-  startRound();
+  /* Once the player taps "TAP TO PLAY" on the splash screen, the HUD is
+     live and they're immediately asked to place a bet (10–1000 coins,
+     capped by what they actually have) before the first run begins. */
+  refreshHud();
+  openBetSelectModal();
 
 };

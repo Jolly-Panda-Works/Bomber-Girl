@@ -26,6 +26,7 @@
       <div class="idbox">
         <b>BOMBER GIRL</b>
         <small id="stepLabel">RISK RUN · SAFE 0</small>
+        <small id="walletLabel">🪙 1000</small>
       </div>
     </div>
 
@@ -80,6 +81,25 @@
       <p id="cardSub">A monster caught you outside the Safe Point.</p>
       <div class="payout" id="cardPayout" style="display:none;"></div>
       <button class="cta restart" id="restartBtn">PLAY AGAIN</button>
+    </div>
+  </div>
+
+  <!-- bet selection (shown before every new run) -->
+  <div class="overlay" id="betSelectModal">
+    <div class="card modalCard">
+      <h2>PLACE YOUR BET</h2>
+      <p id="betSelectHint">Choose how many coins to risk this run.</p>
+      <div class="walletRow">
+        <span>🪙 Your coins</span>
+        <b id="betSelectWallet">1000</b>
+      </div>
+      <div class="betctrl betSelectControls">
+        <button class="roundbtn minus" id="betSelectMinus">−</button>
+        <div class="betval"><span class="coin">🪙</span><span id="betSelectAmount">50</span></div>
+        <button class="roundbtn plus" id="betSelectPlus">+</button>
+      </div>
+      <input type="range" id="betSelectSlider" class="betSlider" min="10" max="1000" step="10" value="50">
+      <button class="cta restart" id="betSelectStart">START RUN</button>
     </div>
   </div>
 
