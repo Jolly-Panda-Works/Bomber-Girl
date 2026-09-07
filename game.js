@@ -161,9 +161,57 @@ window.startBomberGirl = function(){
     }
   }
 
+  /* ================= PLAYER PROFILE (local persistence) =================
+     A single local profile represents this player on this device: their
+     coin balance, saved settings, and chosen avatar. It's created the very
+     first time the game runs (a fresh player) and is re-saved to
+     localStorage every time any of those things change, so coins won,
+     the sound preference, and the picked avatar all survive page
+     reloads/restarts instead of resetting each time. */
+  const PROFILE_KEY = 'bomberGirl.profile';
+  const DEFAULT_PROFILE = { id:null, coins:500, soundEnabled:true, avatarId:'cozy', createdAt:null };
+
+  function makeProfileId(){
+    return 'player_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
+  }
+
+  function loadProfile(){
+    let stored = null;
+    try{ stored = JSON.parse(localStorage.getItem(PROFILE_KEY)); }catch(e){ stored = null; }
+    if(stored && typeof stored==='object'){
+      return Object.assign({}, DEFAULT_PROFILE, stored);
+    }
+    // No profile saved on this device yet. Migrate any values from the
+    // older, separately-keyed storage used by previous versions (sound/
+    // avatar), then create a brand-new profile for this player.
+    const fresh = Object.assign({}, DEFAULT_PROFILE, { id: makeProfileId(), createdAt: Date.now() });
+    try{
+      const oldSound = localStorage.getItem('bomberGirl.soundEnabled');
+      if(oldSound!==null) fresh.soundEnabled = oldSound==='1';
+      const oldAvatar = localStorage.getItem('bomberGirl.avatarId');
+      if(oldAvatar) fresh.avatarId = oldAvatar;
+    }catch(e){}
+    return fresh;
+  }
+
+  const profile = loadProfile();
+
+  function saveProfile(){
+    try{ localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); }catch(e){}
+  }
+  saveProfile(); // persist a freshly-created (or migrated) profile right away
+
+  // Keeps the in-memory `balance` and the persisted profile in sync in one
+  // place, so every coin change (bets, payouts) is saved automatically.
+  function setCoins(value){
+    profile.coins = +value.toFixed(2);
+    balance = profile.coins;
+    saveProfile();
+  }
+
   /* ================= STATE ================= */
   const COLS = CONFIG.board.cols, ROWS = CONFIG.board.rows;
-  let balance = 500;
+  let balance = profile.coins;
   let bet = 50;
   let grid = [];              // 2d array [row][col] of cell objects
   let safePos = null;         // {r,c}
@@ -205,11 +253,7 @@ window.startBomberGirl = function(){
   document.documentElement.style.setProperty('--moveDur', CONFIG.movement.characterMoveDuration+'ms');
 
   /* ================= SOUND SYSTEM ================= */
-  let soundEnabled = true;
-  try{
-    const storedSound = localStorage.getItem('bomberGirl.soundEnabled');
-    if(storedSound!==null) soundEnabled = storedSound==='1';
-  }catch(e){}
+  let soundEnabled = profile.soundEnabled;
 
   let audioCtx = null;
   function ensureAudioCtx(){
@@ -269,7 +313,8 @@ window.startBomberGirl = function(){
   const soundToggleBtn = document.getElementById('soundToggleBtn');
   function setSoundEnabled(on, opts){
     soundEnabled = on;
-    try{ localStorage.setItem('bomberGirl.soundEnabled', on?'1':'0'); }catch(e){}
+    profile.soundEnabled = on;
+    saveProfile();
     if(soundToggleBtn){
       soundToggleBtn.textContent = on ? '🔊 ON' : '🔇 OFF';
       soundToggleBtn.classList.toggle('off', !on);
@@ -300,11 +345,7 @@ window.startBomberGirl = function(){
   const avatarGrid = document.getElementById('avatarGrid');
   const avatarModalClose = document.getElementById('avatarModalClose');
 
-  let avatarId = 'cozy';
-  try{
-    const storedAvatar = localStorage.getItem('bomberGirl.avatarId');
-    if(storedAvatar) avatarId = storedAvatar;
-  }catch(e){}
+  let avatarId = profile.avatarId;
 
   function findAvatar(id){
     const list = (window.ASSETS && ASSETS.avatars) || [];
@@ -314,7 +355,8 @@ window.startBomberGirl = function(){
   function applyAvatar(id){
     avatarId = id;
     mountSprite(avatarGlyphEl, findAvatar(id));
-    try{ localStorage.setItem('bomberGirl.avatarId', id); }catch(e){}
+    profile.avatarId = id;
+    saveProfile();
   }
 
   function buildAvatarGrid(){
@@ -807,7 +849,7 @@ window.startBomberGirl = function(){
   function startRound(){
     if(gameActive) return;
     if(bet>balance){ setStatus('Not enough coins for that bet.'); return; }
-    balance -= bet;
+    setCoins(balance - bet);
     multiplier = 1.00;
     rewardsFound = 0;
     gameActive = true;
@@ -1069,7 +1111,7 @@ window.startBomberGirl = function(){
     refreshHud();
     won ? SFX.win() : SFX.lose();
     const payout = won ? bet*multiplier : 0;
-    if(won) balance += payout;
+    if(won) setCoins(balance + payout);
     cardTitle.textContent = won ? 'CASHED OUT!' : 'DEFEAT';
     cardTitle.className = won ? 'win' : 'lose';
     cardSub.textContent = won
