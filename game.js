@@ -794,8 +794,8 @@ window.startBomberGirl = function(){
     payoutPreview.textContent = '🪙 '+(bet*multiplier).toFixed(2);
     const dots = dotsEl.children;
     for(let i=0;i<dots.length;i++) dots[i].classList.toggle('on', i<rewardsFound);
-    endBtn.disabled = gameActive && phase!=='READY';
-    endBtn.textContent = gameActive ? 'END GAME' : 'START';
+    endBtn.disabled = !gameActive || phase!=='READY';
+    endBtn.textContent = 'END GAME';
   }
 
   function setStatus(msg, topMsg){
@@ -1081,9 +1081,8 @@ window.startBomberGirl = function(){
   }
 
   endBtn.addEventListener('click', ()=>{
+    if(!gameActive || phase!=='READY') return;
     SFX.click();
-    if(!gameActive){ startRound(); return; }
-    if(phase!=='READY') return;
     endRound(true);
   });
 
@@ -1134,11 +1133,8 @@ window.startBomberGirl = function(){
     hoverPathCells=[];
   }
 
-  /* initial idle board (visual only, game not started) */
-  generateBoard();
-  render();
-  refreshHud();
-  setStatus('Tap "START" to begin your Risk Run · Select an empty tile to bomb nearby boxes once it begins','TAP TO START');
-
+  /* game starts immediately once the player taps "TAP TO PLAY" on the splash
+     screen — there is no separate manual "START" step/button. */
+  startRound();
 
 };

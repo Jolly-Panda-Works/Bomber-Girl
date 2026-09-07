@@ -303,6 +303,9 @@
   .credit{margin-top:4px;font-size:11px;color:#8fa8cf;}
   .credit a{color:#8fd0f5;text-decoration:none;font-weight:700;}
   .credit a:hover{text-decoration:underline;}
+  /* settings modal shows the credit above the Close button, so give it some
+     breathing room before the button rather than the default tight spacing */
+  #settingsModal .credit{margin-bottom:16px;}
 
   @media (max-width:640px){
     .sidebar{display:none;}
