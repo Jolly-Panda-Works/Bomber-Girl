@@ -642,7 +642,10 @@ window.startBomberGirl = function(){
           mountSprite(el, ASSETS.safePoint);
         }
         if(cell.kind==='box'){
-          mountSprite(el, cell.destroyed ? ASSETS.box.destroyed : ASSETS.box.intact);
+          // A destroyed box has no "destroyed box" art of its own (ASSETS.box.destroyed
+          // was never defined) — it should just settle into the same walkable "empty
+          // tile" look used for floor/snow tiles, since that's what it functionally is.
+          mountSprite(el, cell.destroyed ? (ASSETS.tile && ASSETS.tile.empty) : ASSETS.box.intact);
         }
         if(cell.kind==='box' && cell.destroyed && cell.revealed && cell.content==='reward'){
           const rewardEl = document.createElement('span');
